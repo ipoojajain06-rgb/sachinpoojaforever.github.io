@@ -611,8 +611,9 @@
     Contact (groom's side): (+91) 9069690000, 9069660000, 9555555318 (all also WhatsApp)
     One website, two sides: the opening screen asks Bride's side or Groom's side.
     Direct links that skip the choice: ?side=bride  and  ?side=groom
-    Wedding programme (bride's side): Reception of Barat 07.00 PM; Dinner 09.00 PM; wedding time 7:00 PM
-    Wedding programme (groom's side): Sehra Bandi 04.00 PM; Departure of Baraat 06.00 PM; wedding time 8:00 PM
+    Wedding programme (bride's side): Reception of Barat 07.00 PM; Dinner 09.00 PM
+    Wedding programme (groom's side): Sehra Bandi 04.00 PM; Departure of Baraat 06.00 PM
+    Wedding time (both sides): 7:00 PM
   -->
 
   <svg class="symbol-bank" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -1130,8 +1131,7 @@
               </div>
               <div class="flip-face flip-back">
                 <div class="booklet-page-rule"></div>
-                <p class="booklet-time" data-side-only="bride">7:00 PM</p>
-                <p class="booklet-time" data-side-only="groom">8:00 PM</p>
+                <p class="booklet-time">7:00 PM</p>
                 <p class="booklet-venue"><span>Venue</span>Royal Pepper Banquets (Tulip)</p>
                 <p class="booklet-invite">With the blessings of our families, join us as <span data-name="first">Pooja</span> and <span data-name="second">Sachin</span> begin their forever.</p>
                 <button class="flip-btn" type="button">Flip back <span aria-hidden="true">↺</span></button>
@@ -1207,12 +1207,11 @@
         { name: 'Haldi', y: 2026, m: 11, d: 2, hour: 11, minute: 0, venue: 'At our residence' },
         { name: 'Mehendi', y: 2026, m: 11, d: 3, hour: 19, minute: 0, venue: 'Feather Party Hall, 2nd Floor, Mangalam Place, Rohini, Delhi – 110085' },
         { name: 'Sangeet', y: 2026, m: 11, d: 3, hour: 19, minute: 0, venue: 'Feather Party Hall, 2nd Floor, Mangalam Place, Rohini, Delhi – 110085' },
-        { name: 'Wedding', y: 2026, m: 11, d: 4, hour: 20, brideHour: 19, minute: 0 }
+        { name: 'Wedding', y: 2026, m: 11, d: 4, hour: 19, minute: 0 }
       ];
       const venue = 'Royal Pepper Banquets (Tulip)';
       const address = 'Ground Floor, Main Ring Road, Opp. Shalimar Bagh, Wazirpur Industrial Area, Delhi-110052';
-      // 4 Dec 2026 at fixed UTC+05:30: 7:00 PM for the bride's side, 8:00 PM for the groom's side.
-      const weddingInstantFor = s => s === 'groom' ? Date.UTC(2026, 11, 4, 14, 30, 0) : Date.UTC(2026, 11, 4, 13, 30, 0);
+      const weddingInstant = Date.UTC(2026, 11, 4, 13, 30, 0); // 4 Dec 2026, 7:00 PM at fixed UTC+05:30
 
       // If Ganesh.png is missing, show a golden ॐ emblem instead of a broken image.
       document.querySelectorAll('img[data-fallback="ganesha"]').forEach(img => {
@@ -1601,7 +1600,7 @@
         if (!reduceMotion) { el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip'); }
       }
       function updateCountdown() {
-        const diff = weddingInstantFor(side) - Date.now();
+        const diff = weddingInstant - Date.now();
         if (diff <= 0) {
           ['days', 'hours', 'minutes', 'seconds'].forEach(id => setCell(id, '00'));
           document.getElementById('countdown-state').textContent = 'Just Married';
@@ -1630,8 +1629,7 @@
             const endYmd = `${nextDay.getUTCFullYear()}${String(nextDay.getUTCMonth() + 1).padStart(2, '0')}${String(nextDay.getUTCDate()).padStart(2, '0')}`;
             lines.push('BEGIN:VEVENT', `UID:pooja-sachin-${index + 1}-2026@wedding-invitation`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${ymd}`, `DTEND;VALUE=DATE:${endYmd}`, `SUMMARY:${item.name} - ${sideNames[side]['first-full']} & ${sideNames[side]['second-full']}`, `LOCATION:${venue}\\, ${address}`, 'END:VEVENT');
           } else {
-            const hour = side === 'bride' && item.brideHour != null ? item.brideHour : item.hour;
-            const utc = new Date(Date.UTC(item.y, item.m, item.d, hour - 5, item.minute - 30));
+            const utc = new Date(Date.UTC(item.y, item.m, item.d, item.hour - 5, item.minute - 30));
             const start = utc.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
             lines.push('BEGIN:VEVENT', `UID:pooja-sachin-${index + 1}-2026@wedding-invitation`, `DTSTAMP:${stamp}`, `DTSTART:${start}`, `SUMMARY:${item.name} - ${sideNames[side]['first-full']} & ${sideNames[side]['second-full']}`, (item.venue && side === 'bride') ? 'LOCATION:' : `LOCATION:${item.venue ? item.venue.replace(/,/g, '\\,') : venue + '\\, ' + address}`, 'END:VEVENT');
           }
